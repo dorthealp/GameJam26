@@ -18,8 +18,8 @@ screen = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
 window = pygame.display.set_mode((FRAME_WIDTH, FRAME_HEIGHT))
 clock = pygame.time.Clock()
 
-pixel_font = pygame.font.Font("Fonts/PixelifySans-Medium.ttf", 40)
-pixel_font_thin = pygame.font.Font("Fonts/PixelifySans-Regular.ttf", 30)
+pixel_font = pygame.font.Font("Fonts/SedgwickAve-Regular.ttf", 40)
+pixel_font_thin = pygame.font.Font("Fonts/Pangolin-Regular.ttf", 30)
 
 GAME_X = (FRAME_WIDTH - SCREEN_WIDTH) // 2
 GAME_Y = (FRAME_HEIGHT - SCREEN_HEIGHT) // 2
@@ -68,7 +68,7 @@ class Game:
             
             for i in range(len(animals_list)):
                 for j in range(i + 1, len(animals_list)):
-                    # Sjekk om fruktene fortsatt eksisterer (viktig ved merging!)
+                    # Sjekk om dyrene fortsatt eksisterer (viktig ved merging!)
                     if i >= len(animals_list) or j >= len(animals_list): continue
                     
                     f1 = animals_list[i]
@@ -136,13 +136,14 @@ class Game:
     
 
     def game_over_screen(self):
-        screen.fill("#7bceea")
-        game_over_surface = pixel_font.render("Game Over", False, (12, 81, 105))
-        game_over_rectangle = game_over_surface.get_rect(center=(SCREEN_WIDTH // 2, 100))
+        screen.fill((254, 172, 90))
+
+        game_over_surface = pixel_font.render("Game Over", False, (156, 27, 32))
+        game_over_rectangle = game_over_surface.get_rect(center=(SCREEN_WIDTH // 2, 150))
         screen.blit(game_over_surface, game_over_rectangle)
         
-        game_over_description_surface = pixel_font_thin.render("Press 'spacebar' to replay", False, (12, 81, 105))
-        game_over_description_rectangle = game_over_surface.get_rect(center=(SCREEN_WIDTH // 3.25, 300))
+        game_over_description_surface = pixel_font_thin.render("Press 'spacebar' to replay", False, (156, 27, 32))
+        game_over_description_rectangle = game_over_description_surface.get_rect(center=(SCREEN_WIDTH // 2, 300))
         screen.blit(game_over_description_surface, game_over_description_rectangle)
 
     def run(self):
@@ -176,23 +177,26 @@ class Game:
                 self.check_game_over()
 
                 # 4. Tegn alt på nytt
-                window.fill((30, 30, 30))
-                screen.fill((255, 255, 255))
-                screen.blit(self.background, (0, 0))
+                window.fill((194, 39, 45)) # ytre rød
+                screen.fill((254, 172, 90)) # indre gul/oransj
+                
                 self.animals.draw(screen)
                 window.blit(screen, (GAME_X, GAME_Y))
                 self.scoreboard.draw(window)
                 
-                #line
+                #linje logikk
                 pulse = abs((pygame.time.get_ticks() % 1000) - 500) // 4
                 color = (90, 58 + pulse // 10, 46 + pulse // 10)
 
                 pygame.draw.rect(
                     screen,
                     color,
-                    (0, TOP_BORDER_Y - 5, SCREEN_WIDTH, 5)
-)
+                    (0, TOP_BORDER_Y - 5, SCREEN_WIDTH, 5))
+                
                 window.blit(screen, (GAME_X, GAME_Y))
+                #pygame.draw.rect(window, (77, 13, 15), (GAME_X, GAME_Y, SCREEN_WIDTH, SCREEN_HEIGHT), 5)
+                pygame.draw.rect(window, (77, 13, 15), (GAME_X - 5, GAME_Y - 5, SCREEN_WIDTH + 10, SCREEN_HEIGHT + 10), 10)
+
                 pygame.display.update()
                 clock.tick(60)
             
@@ -200,9 +204,11 @@ class Game:
             else:
                 self.game_over_screen()
                 
-                window.fill((30, 30, 30)) 
+                window.fill((194, 39, 45)) 
                 window.blit(screen, (GAME_X, GAME_Y)) 
                 
+                pygame.draw.rect(window, (77, 13, 15), (GAME_X - 5, GAME_Y - 5, SCREEN_WIDTH + 10, SCREEN_HEIGHT + 10), 10)
+
                 pygame.display.update() 
                 clock.tick(60)
 

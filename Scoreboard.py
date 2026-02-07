@@ -14,7 +14,7 @@ class Scoreboard:
 
     def draw(self, window):
         # Tegn merkelapp
-        label_surf = self.label_font.render("POENG", True, (255, 182, 193)) # Lys rosa tekst
+        label_surf = self.label_font.render("POENG", True, (77, 13, 15))
         window.blit(label_surf, (self.x, self.y))
         
         # Tegn selve tallet rett under
