@@ -18,8 +18,8 @@ screen = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
 window = pygame.display.set_mode((FRAME_WIDTH, FRAME_HEIGHT))
 clock = pygame.time.Clock()
 
-pixel_font = pygame.font.Font("Fonts/PixelifySans-Medium.ttf", 40)
-pixel_font_thin = pygame.font.Font("Fonts/PixelifySans-Regular.ttf", 30)
+pixel_font = pygame.font.Font("Fonts/SedgwickAve-Regular.ttf", 40)
+pixel_font_thin = pygame.font.Font("Fonts/Pangolin-Regular.ttf", 30)
 
 GAME_X = (FRAME_WIDTH - SCREEN_WIDTH) // 2
 GAME_Y = (FRAME_HEIGHT - SCREEN_HEIGHT) // 2
@@ -68,7 +68,7 @@ class Game:
             
             for i in range(len(animals_list)):
                 for j in range(i + 1, len(animals_list)):
-                    # Sjekk om fruktene fortsatt eksisterer (viktig ved merging!)
+                    # Sjekk om dyrene fortsatt eksisterer (viktig ved merging!)
                     if i >= len(animals_list) or j >= len(animals_list): continue
                     
                     f1 = animals_list[i]
@@ -136,13 +136,14 @@ class Game:
     
 
     def game_over_screen(self):
-        screen.fill("#7bceea")
-        game_over_surface = pixel_font.render("Game Over", False, (12, 81, 105))
-        game_over_rectangle = game_over_surface.get_rect(center=(SCREEN_WIDTH // 2, 100))
+        screen.fill((254, 172, 90))
+
+        game_over_surface = pixel_font.render("Game Over", False, (156, 27, 32))
+        game_over_rectangle = game_over_surface.get_rect(center=(SCREEN_WIDTH // 2, 150))
         screen.blit(game_over_surface, game_over_rectangle)
         
-        game_over_description_surface = pixel_font_thin.render("Press 'spacebar' to replay", False, (12, 81, 105))
-        game_over_description_rectangle = game_over_surface.get_rect(center=(SCREEN_WIDTH // 3.25, 300))
+        game_over_description_surface = pixel_font_thin.render("Press 'spacebar' to replay", False, (156, 27, 32))
+        game_over_description_rectangle = game_over_description_surface.get_rect(center=(SCREEN_WIDTH // 2, 300))
         screen.blit(game_over_description_surface, game_over_description_rectangle)
 
     def run(self):
@@ -176,9 +177,9 @@ class Game:
                 self.check_game_over()
 
                 # 4. Tegn alt på nytt
-                window.fill((30, 30, 30))
-                screen.fill((255, 255, 255))
-                screen.blit(self.background, (0, 0))
+                window.fill((194, 39, 45))
+                screen.fill((254, 172, 90))
+                #screen.blit(self.background, (0, 0))
                 self.animals.draw(screen)
                 window.blit(screen, (GAME_X, GAME_Y))
                 self.scoreboard.draw(window)
@@ -200,7 +201,7 @@ class Game:
             else:
                 self.game_over_screen()
                 
-                window.fill((30, 30, 30)) 
+                window.fill((194, 39, 45)) 
                 window.blit(screen, (GAME_X, GAME_Y)) 
                 
                 pygame.display.update() 
