@@ -9,6 +9,8 @@ SCREEN_WIDTH = 400
 SCREEN_HEIGHT = 600
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 clock = pygame.time.Clock()
+active_game = True
+pixel_font = pygame.font.Font("Fonts/PixelifySans-Medium.ttf", 40)
 
 # Farger
 WHITE = (255, 255, 255)
@@ -92,6 +94,11 @@ class Game:
                         f1.rect.y += ny * (overlap / 2)
                         f2.rect.x -= nx * (overlap / 2)
                         f2.rect.y -= ny * (overlap / 2)
+                    
+    def game_over_screen(self):
+        game_over_surface = pixel_font.render("Game Over", False, (12, 81, 105))
+        game_over_rectangle = game_over_surface.get_rect(center = (400, 60))
+        screen.blit(game_over_surface, game_over_rectangle)
 
     def run(self):
         while True:
@@ -104,17 +111,20 @@ class Game:
                     mouse_x = pygame.mouse.get_pos()[0]
                     self.spawn_animals(mouse_x)
 
-            # 1. Oppdater posisjoner
-            self.animals.update()
-            
-            # 2. Sjekk kollisjoner og merging
-            self.handle_collisions()
+            if active_game:
+                # 1. Oppdater posisjoner
+                self.animals.update()
+                
+                # 2. Sjekk kollisjoner og merging
+                self.handle_collisions()
 
-            # 3. Tegn alt på nytt
-            screen.blit(self.background, (0, 0))
-            self.animals.draw(screen)
-            pygame.display.flip()
-            clock.tick(60)
+                # 3. Tegn alt på nytt
+                screen.blit(self.background, (0, 0))
+                self.animals.draw(screen)
+                pygame.display.update()
+                clock.tick(60)
+            else:
+                screen.fill("#7bceea")
 
 if __name__ == "__main__":
     game = Game()
