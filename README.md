@@ -7,3 +7,7 @@ Go go lets go lets go Ladybugs!! 🐞
 - Kristy 🐱
 - Juni:)
 - Sandra <3
+
+## Ting man må laste ned:
+- Pygame-ce
+- Pymunk
