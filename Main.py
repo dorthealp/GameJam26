@@ -10,14 +10,14 @@ pygame.init()
 SCREEN_WIDTH = 500
 SCREEN_HEIGHT = 600
 
-#outer frame
+# OUTER FRAME
 FRAME_WIDTH = 1080
 FRAME_HEIGHT = 720
 
 screen = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
 window = pygame.display.set_mode((FRAME_WIDTH, FRAME_HEIGHT))
 clock = pygame.time.Clock()
-active_game = True
+
 pixel_font = pygame.font.Font("Fonts/PixelifySans-Medium.ttf", 40)
 
 GAME_X = (FRAME_WIDTH - SCREEN_WIDTH) // 2
@@ -33,6 +33,7 @@ class Game:
         
         self.animals = pygame.sprite.Group()
         self.current_level = 1 # Startfrukt
+        self.active_game = True
 
         # En liste med filnavnene dine i rekkefølge (0 er minste frukt)
         self.animal_images = [
@@ -107,8 +108,9 @@ class Game:
                         f2.rect.y -= ny * (overlap / 2)
                     
     def game_over_screen(self):
+        screen.fill("#7bceea")
         game_over_surface = pixel_font.render("Game Over", False, (12, 81, 105))
-        game_over_rectangle = game_over_surface.get_rect(center = (400, 60))
+        game_over_rectangle = game_over_surface.get_rect(center=(SCREEN_WIDTH // 2, 100))
         screen.blit(game_over_surface, game_over_rectangle)
 
     def run(self):
@@ -126,7 +128,8 @@ class Game:
                         local_x = mx - GAME_X
                         self.spawn_animals(local_x)
 
-            if active_game:
+            # GAMEPLAY
+            if self.active_game:
                 # 1. Oppdater posisjoner
                 self.animals.update()
                 
@@ -143,8 +146,16 @@ class Game:
                 
                 pygame.display.update()
                 clock.tick(60)
+            
+            # GAME OVER SCREEN
             else:
-                screen.fill("#7bceea")
+                self.game_over_screen()
+                
+                window.fill((30, 30, 30)) 
+                window.blit(screen, (GAME_X, GAME_Y)) 
+                
+                pygame.display.update() 
+                clock.tick(60)
 
 if __name__ == "__main__":
     game = Game()
