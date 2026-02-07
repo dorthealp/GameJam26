@@ -5,7 +5,6 @@ class Animal(pygame.sprite.Sprite):
     def __init__(self, x, y, level, image_path):
         super().__init__()
         self.level = level
-        
         # 1. Last inn bildet
         try:
             raw_image = pygame.image.load(image_path).convert_alpha()
@@ -22,6 +21,8 @@ class Animal(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(raw_image, (self.size, self.size))
         
         self.rect = self.image.get_rect(center=(x, y))
+        self.prev_top = self.rect.top
+        self.entered_game = False
         self.radius = self.size // 2
         
         # Fysikk-variabler (som før)
@@ -30,6 +31,8 @@ class Animal(pygame.sprite.Sprite):
         self.gravity = 0.5
 
     def update(self):
+
+        self.prev_top = self.rect.top
         # Bruk tyngdekraft
         self.velocity_y += self.gravity
         

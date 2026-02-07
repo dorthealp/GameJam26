@@ -23,6 +23,8 @@ pixel_font_thin = pygame.font.Font("Fonts/PixelifySans-Regular.ttf", 30)
 
 GAME_X = (FRAME_WIDTH - SCREEN_WIDTH) // 2
 GAME_Y = (FRAME_HEIGHT - SCREEN_HEIGHT) // 2
+#Border
+TOP_BORDER_Y = 80
 
 # Farger
 WHITE = (255, 255, 255)
@@ -113,7 +115,26 @@ class Game:
                         f1.rect.y += ny * (overlap / 2)
                         f2.rect.x -= nx * (overlap / 2)
                         f2.rect.y -= ny * (overlap / 2)
-                    
+
+    def reset_game(self):
+        self.animals.empty()
+        self.current_level = 1
+        self.active_game = True               
+
+    def check_game_over(self):
+        for animal in self.animals:
+            if animal.rect.top > TOP_BORDER_Y:
+                animal.entered_game = True
+
+            if (
+                animal.entered_game 
+                and animal.prev_top > TOP_BORDER_Y
+                and animal.rect.top <= TOP_BORDER_Y
+                ):
+                self.active_game = False
+                return
+    
+
     def game_over_screen(self):
         screen.fill("#7bceea")
         game_over_surface = pixel_font.render("Game Over", False, (12, 81, 105))
@@ -141,7 +162,7 @@ class Game:
                             self.spawn_animals(local_x)
                 else:
                     if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-                        self.active_game = True
+                        self.reset_game()
 
             # GAMEPLAY
             if self.active_game:
@@ -151,8 +172,10 @@ class Game:
                 # 2. Sjekk kollisjoner og merging
                 self.handle_collisions()
 
-                # 3. Tegn alt på nytt
-                screen.blit(self.background, (0, 0))
+                #3. check game over
+                self.check_game_over()
+
+                # 4. Tegn alt på nytt
                 window.fill((30, 30, 30))
                 screen.fill((255, 255, 255))
                 screen.blit(self.background, (0, 0))
@@ -160,6 +183,16 @@ class Game:
                 window.blit(screen, (GAME_X, GAME_Y))
                 self.scoreboard.draw(window)
                 
+                #line
+                pulse = abs((pygame.time.get_ticks() % 1000) - 500) // 4
+                color = (90, 58 + pulse // 10, 46 + pulse // 10)
+
+                pygame.draw.rect(
+                    screen,
+                    color,
+                    (0, TOP_BORDER_Y - 5, SCREEN_WIDTH, 5)
+)
+                window.blit(screen, (GAME_X, GAME_Y))
                 pygame.display.update()
                 clock.tick(60)
             
