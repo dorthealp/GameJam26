@@ -7,7 +7,7 @@ from Scoreboard import Scoreboard
 pygame.init()
 
 # INNER PLAYABLE area
-SCREEN_WIDTH = 500
+SCREEN_WIDTH = 550
 SCREEN_HEIGHT = 600
 
 # OUTER FRAME
@@ -43,78 +43,83 @@ class Game:
 
         # En liste med filnavnene dine i rekkefølge (0 er minste frukt)
         self.animal_images = [
-            "Assets\9hqZid.png",   # Level 0, denne vil bli ignorert pga listelogikk
-            "Assets/fotb.png",  # Level 1
-            "Assets/9hqZid.png",     # Level 2
-            "Assets/fotb.png",  # Level 3
-            "Assets/9hqZid.png",      # Level 4 osv..
-            "Assets/9hqZid.png",   
-            "Assets/fotb.png",  
-            "Assets/9hqZid.png",     
-            "Assets/fotb.png",  
-            "Assets/9hqZid.png",
-            "Assets/fotb.png",  
+            "Asserts/rat.png",   # Level 0, denne vil bli ignorert pga listelogikk
+            "Assets/snake.png",  # Level 1
+            "Assets/cat.png",     # Level 2
+            "Assets/rooster.png",  # Level 3
+            "Assets/monkey.png",      # Level 4 osv..
+            "Assets/dog.png",   
+            "Assets/goat.png",  
+            "Assets/pig.png",     
+            "Assets/horse.png",  
+            "Assets/tiger.png",
+            "Assets/buffalo.png",  
             "Assets/volleyb.png",        
         ]
         
     def spawn_animals(self, x):
         # Vi henter riktig bilde-sti basert på current_level
         image_path = self.animal_images[self.current_level]
-        new_animal= Animal.Animal(x, 50, self.current_level, image_path)
+        new_animal= Animal.Animal(x, 50, self.current_level, image_path, 1 + self.current_level * 0.5 )
+        
+         # Clamp the center so the sprite stays fully inside the inner screen
+        half_width = new_animal.rect.width // 2
+        clamped_x = max(half_width, min(SCREEN_WIDTH - half_width, x))
+        new_animal.rect.centerx = clamped_x
         self.animals.add(new_animal)
 
     def handle_collisions(self):
-            animals_list = self.animals.sprites()
-            
-            for i in range(len(animals_list)):
-                for j in range(i + 1, len(animals_list)):
-                    # Sjekk om dyrene fortsatt eksisterer (viktig ved merging!)
-                    if i >= len(animals_list) or j >= len(animals_list): continue
-                    
-                    f1 = animals_list[i]
-                    f2 = animals_list[j]
+        animals_list = self.animals.sprites()
 
-                    dx = f1.rect.centerx - f2.rect.centerx
-                    dy = f1.rect.centery - f2.rect.centery
-                    distance = (dx**2 + dy**2)**0.5
-                    min_dist = f1.radius + f2.radius
+        for i in range(len(animals_list)):
+            for j in range(i + 1, len(animals_list)):
+                if i >= len(animals_list) or j >= len(animals_list):
+                    continue
 
-                    if distance < min_dist:
-                        # --- HER STARTER MERGING-LOGIKKEN (Punkt 3) ---
-                        if f1.level == f2.level:
-                            new_level = f1.level + 1
+                f1 = animals_list[i]
+                f2 = animals_list[j]
 
-                            # Bruker det nye nivået for å bestemme poengsummen
-                            self.scoreboard.add_score_by_level(new_level)
-                            
-                            # Sjekk at vi faktisk har et bilde for neste nivå
-                            if new_level < len(self.animal_images):
-                                new_x = (f1.rect.centerx + f2.rect.centerx) / 2
-                                new_y = (f1.rect.centery + f2.rect.centery) / 2
-                                
-                                # Fjern de gamle ballene
-                                f1.kill()
-                                f2.kill()
-                                
-                                # Lag den nye ballen med bilde fra listen
-                                new_path = self.animal_images[new_level]
-                                new_animal = Animal.Animal(new_x, new_y, new_level, new_path)
-                                self.animals.add(new_animal)
-                                
-                                # Vi må gå ut av funksjonen her fordi lista har endret seg
-                                return 
-                        # --- HER SLUTTER MERGING-LOGIKKEN ---
+                dx = f1.rect.centerx - f2.rect.centerx
+                dy = f1.rect.centery - f2.rect.centery
+                distance = (dx ** 2 + dy ** 2) ** 0.5
+                min_dist = f1.radius + f2.radius
 
-                        # Logikk for stabling/dytting (hvis de ikke merget)
-                        overlap = min_dist - distance
-                        if distance == 0: distance = 1 # Unngå crash
-                        nx = dx / distance
-                        ny = dy / distance
+                if distance < min_dist:
+                    # --- MERGING ---
+                    if f1.level == f2.level:
+                        new_level = f1.level + 1
+                        if new_level < len(self.animal_images):
+                            new_x = (f1.rect.centerx + f2.rect.centerx) / 2
+                            new_y = (f1.rect.centery + f2.rect.centery) / 2
+                            new_mass = f1.mass + f2.mass
+                            f1.kill()
+                            f2.kill()
+                            new_path = self.animal_images[new_level]
+                            new_animal = Animal.Animal(new_x, new_y, new_level, new_path, mass=new_mass)
+                            self.animals.add(new_animal)
+                            self.scoreboard.add_score_by_level(10) 
+                            return
 
-                        f1.rect.x += nx * (overlap / 2)
-                        f1.rect.y += ny * (overlap / 2)
-                        f2.rect.x -= nx * (overlap / 2)
-                        f2.rect.y -= ny * (overlap / 2)
+                    # --- STACKING / PUSHING ---
+                    overlap = min_dist - distance
+                    if distance == 0:
+                        distance = 1
+                    nx = dx / distance
+                    ny = dy / distance
+                    total_mass = f1.mass + f2.mass
+
+                    # Apply movement proportional to mass
+                    f1.rect.x += nx * (overlap * f2.mass / total_mass)
+                    f1.rect.y += ny * (overlap * f2.mass / total_mass)
+                    f2.rect.x -= nx * (overlap * f1.mass / total_mass)
+                    f2.rect.y -= ny * (overlap * f1.mass / total_mass)
+
+                    # --- CLAMP inside inner screen ---
+                    for f in [f1, f2]:
+                        if f.rect.left < 0:
+                            f.rect.left = 0
+                        if f.rect.right > SCREEN_WIDTH:
+                            f.rect.right = SCREEN_WIDTH
 
     def reset_game(self):
         self.animals.empty()
@@ -177,12 +182,10 @@ class Game:
                 self.check_game_over()
 
                 # 4. Tegn alt på nytt
+                screen.blit(self.background, (0, 0))
                 window.fill((194, 39, 45)) # ytre rød
                 screen.fill((254, 172, 90)) # indre gul/oransj
-                
                 self.animals.draw(screen)
-                window.blit(screen, (GAME_X, GAME_Y))
-                self.scoreboard.draw(window)
                 
                 #linje logikk
                 pulse = abs((pygame.time.get_ticks() % 1000) - 500) // 4
@@ -191,7 +194,10 @@ class Game:
                 pygame.draw.rect(
                     screen,
                     color,
-                    (0, TOP_BORDER_Y - 5, SCREEN_WIDTH, 5))
+                    (0, TOP_BORDER_Y - 5, SCREEN_WIDTH, 5)
+)
+                window.fill((30, 30, 30))
+                self.scoreboard.draw(window)
                 
                 window.blit(screen, (GAME_X, GAME_Y))
                 #pygame.draw.rect(window, (77, 13, 15), (GAME_X, GAME_Y, SCREEN_WIDTH, SCREEN_HEIGHT), 5)
