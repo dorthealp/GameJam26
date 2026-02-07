@@ -177,23 +177,26 @@ class Game:
                 self.check_game_over()
 
                 # 4. Tegn alt på nytt
-                window.fill((194, 39, 45))
-                screen.fill((254, 172, 90))
-                #screen.blit(self.background, (0, 0))
+                window.fill((194, 39, 45)) # ytre rød
+                screen.fill((254, 172, 90)) # indre gul/oransj
+                
                 self.animals.draw(screen)
                 window.blit(screen, (GAME_X, GAME_Y))
                 self.scoreboard.draw(window)
                 
-                #line
+                #linje logikk
                 pulse = abs((pygame.time.get_ticks() % 1000) - 500) // 4
                 color = (90, 58 + pulse // 10, 46 + pulse // 10)
 
                 pygame.draw.rect(
                     screen,
                     color,
-                    (0, TOP_BORDER_Y - 5, SCREEN_WIDTH, 5)
-)
+                    (0, TOP_BORDER_Y - 5, SCREEN_WIDTH, 5))
+                
                 window.blit(screen, (GAME_X, GAME_Y))
+                #pygame.draw.rect(window, (77, 13, 15), (GAME_X, GAME_Y, SCREEN_WIDTH, SCREEN_HEIGHT), 5)
+                pygame.draw.rect(window, (77, 13, 15), (GAME_X - 5, GAME_Y - 5, SCREEN_WIDTH + 10, SCREEN_HEIGHT + 10), 10)
+
                 pygame.display.update()
                 clock.tick(60)
             
@@ -204,6 +207,8 @@ class Game:
                 window.fill((194, 39, 45)) 
                 window.blit(screen, (GAME_X, GAME_Y)) 
                 
+                pygame.draw.rect(window, (77, 13, 15), (GAME_X - 5, GAME_Y - 5, SCREEN_WIDTH + 10, SCREEN_HEIGHT + 10), 10)
+
                 pygame.display.update() 
                 clock.tick(60)
 
