@@ -12,7 +12,7 @@ SCREEN_HEIGHT = 600
 
 #outer frame
 FRAME_WIDTH = 1080
-FRAME_HEIGHT = 720
+FRAME_HEIGHT = 700
 
 screen = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
 window = pygame.display.set_mode((FRAME_WIDTH, FRAME_HEIGHT))
