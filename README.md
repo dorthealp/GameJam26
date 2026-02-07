@@ -8,4 +8,5 @@ Go go lets go lets go Ladybugs!! 🐞
 - Juni:)
 
 ## Ting man må laste ned:
+- Pygame-ce
 - Pymunk
