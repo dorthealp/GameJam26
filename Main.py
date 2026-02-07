@@ -1,7 +1,7 @@
 import pygame
 import sys
-import Game
 import Animal
+from Scoreboard import Scoreboard
 
 # Initialisering
 pygame.init()
@@ -34,6 +34,9 @@ class Game:
         self.animals = pygame.sprite.Group()
         self.current_level = 1 # Startfrukt
         self.active_game = True
+
+        #scoreboard
+        self.scoreboard = Scoreboard(GAME_X + SCREEN_WIDTH + 50, GAME_Y + 100)
 
         # En liste med filnavnene dine i rekkefølge (0 er minste frukt)
         self.animal_images = [
@@ -77,6 +80,9 @@ class Game:
                         # --- HER STARTER MERGING-LOGIKKEN (Punkt 3) ---
                         if f1.level == f2.level:
                             new_level = f1.level + 1
+
+                            # Bruker det nye nivået for å bestemme poengsummen
+                            self.scoreboard.add_score_by_level(new_level)
                             
                             # Sjekk at vi faktisk har et bilde for neste nivå
                             if new_level < len(self.animal_images):
@@ -98,7 +104,7 @@ class Game:
 
                         # Logikk for stabling/dytting (hvis de ikke merget)
                         overlap = min_dist - distance
-                        if distance == 0: distance = 1 # Unngå krash
+                        if distance == 0: distance = 1 # Unngå crash
                         nx = dx / distance
                         ny = dy / distance
 
@@ -143,6 +149,7 @@ class Game:
                 screen.blit(self.background, (0, 0))
                 self.animals.draw(screen)
                 window.blit(screen, (GAME_X, GAME_Y))
+                self.scoreboard.draw(window)
                 
                 pygame.display.update()
                 clock.tick(60)
