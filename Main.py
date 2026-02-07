@@ -19,6 +19,7 @@ window = pygame.display.set_mode((FRAME_WIDTH, FRAME_HEIGHT))
 clock = pygame.time.Clock()
 
 pixel_font = pygame.font.Font("Fonts/PixelifySans-Medium.ttf", 40)
+pixel_font_thin = pygame.font.Font("Fonts/PixelifySans-Regular.ttf", 30)
 
 GAME_X = (FRAME_WIDTH - SCREEN_WIDTH) // 2
 GAME_Y = (FRAME_HEIGHT - SCREEN_HEIGHT) // 2
@@ -33,7 +34,7 @@ class Game:
         
         self.animals = pygame.sprite.Group()
         self.current_level = 1 # Startfrukt
-        self.active_game = True
+        self.active_game = False
 
         # En liste med filnavnene dine i rekkefølge (0 er minste frukt)
         self.animal_images = [
@@ -112,6 +113,10 @@ class Game:
         game_over_surface = pixel_font.render("Game Over", False, (12, 81, 105))
         game_over_rectangle = game_over_surface.get_rect(center=(SCREEN_WIDTH // 2, 100))
         screen.blit(game_over_surface, game_over_rectangle)
+        
+        game_over_description_surface = pixel_font_thin.render("Press 'spacebar' to replay", False, (12, 81, 105))
+        game_over_description_rectangle = game_over_surface.get_rect(center=(SCREEN_WIDTH // 3.25, 300))
+        screen.blit(game_over_description_surface, game_over_description_rectangle)
 
     def run(self):
         while True:
@@ -120,13 +125,17 @@ class Game:
                     pygame.quit()
                     sys.exit()
                 
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    mx, my = pygame.mouse.get_pos()
+                if self.active_game:
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        mx, my = pygame.mouse.get_pos()
 
-                    # Check if click is inside game screen
-                    if GAME_X <= mx <= GAME_X + SCREEN_WIDTH:
-                        local_x = mx - GAME_X
-                        self.spawn_animals(local_x)
+                        # Check if click is inside game screen
+                        if GAME_X <= mx <= GAME_X + SCREEN_WIDTH:
+                            local_x = mx - GAME_X
+                            self.spawn_animals(local_x)
+                else:
+                    if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                        self.active_game = True
 
             # GAMEPLAY
             if self.active_game:
