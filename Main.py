@@ -5,12 +5,23 @@ import Animal
 
 # Initialisering
 pygame.init()
-SCREEN_WIDTH = 400
+
+# INNER PLAYABLE area
+SCREEN_WIDTH = 500
 SCREEN_HEIGHT = 600
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+
+#outer frame
+FRAME_WIDTH = 1080
+FRAME_HEIGHT = 720
+
+screen = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
+window = pygame.display.set_mode((FRAME_WIDTH, FRAME_HEIGHT))
 clock = pygame.time.Clock()
 active_game = True
 pixel_font = pygame.font.Font("Fonts/PixelifySans-Medium.ttf", 40)
+
+GAME_X = (FRAME_WIDTH - SCREEN_WIDTH) // 2
+GAME_Y = (FRAME_HEIGHT - SCREEN_HEIGHT) // 2
 
 # Farger
 WHITE = (255, 255, 255)
@@ -108,8 +119,12 @@ class Game:
                     sys.exit()
                 
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    mouse_x = pygame.mouse.get_pos()[0]
-                    self.spawn_animals(mouse_x)
+                    mx, my = pygame.mouse.get_pos()
+
+                    # Check if click is inside game screen
+                    if GAME_X <= mx <= GAME_X + SCREEN_WIDTH:
+                        local_x = mx - GAME_X
+                        self.spawn_animals(local_x)
 
             if active_game:
                 # 1. Oppdater posisjoner
@@ -120,7 +135,12 @@ class Game:
 
                 # 3. Tegn alt på nytt
                 screen.blit(self.background, (0, 0))
+                window.fill((30, 30, 30))
+                screen.fill((255, 255, 255))
+                screen.blit(self.background, (0, 0))
                 self.animals.draw(screen)
+                window.blit(screen, (GAME_X, GAME_Y))
+                
                 pygame.display.update()
                 clock.tick(60)
             else:
