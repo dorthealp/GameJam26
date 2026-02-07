@@ -6,3 +6,4 @@ Go go lets go lets go Ladybugs!! 🐞
 - Dorthea :D
 - Kristy 🐱
 - Juni:)
+- Sandra <3
