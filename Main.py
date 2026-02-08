@@ -44,6 +44,7 @@ class Game:
         self.active_game = False
         self.on_start_screen = True # starter spillet på startscreen
 
+
         # Start screen
         self.start_menu = StartScreen(screen, pixel_font, pixel_font_thin)
 
@@ -54,10 +55,10 @@ class Game:
         self.animal_images = [
             "Assets/volleyb.png", # Level 0, denne vil bli ignorert pga listelogikk
             "Assets/rat.png",   # Level 1
-            "Assets/snake.png",  # Level 3
-            "Assets/cat.png",     # Level 4
-            "Assets/rooster.png",  # Level 5
-            "Assets/monkey.png",      # Level 6 osv..
+            "Assets/snake.png",  # Level 2
+            "Assets/cat.png",     # Level 3
+            "Assets/rooster.png",  # Level 4
+            "Assets/monkey.png",      # Level 5 osv..
             "Assets/dog.png",   
             "Assets/goat.png",  
             "Assets/pig.png",     
@@ -66,27 +67,56 @@ class Game:
             "Assets/buffalo.png",  
             "Assets/dragon.png",        
         ]
+        self.next_animal_level = self.choose_next_level()
+        self.next_animal_image = self.animal_images[self.next_animal_level]
+        self.animal_surfaces = []
+        for path in self.animal_images:
+            try:
+                img = pygame.image.load(path).convert_alpha()
+            except:
+                img = pygame.Surface((50, 50))
+                img.fill((255, 0, 255))
+            self.animal_surfaces.append(img)
+
+        # Initialize next animal queue
+        self.next_animal_level = self.choose_next_level()
+
+
+    def choose_next_level(self):
+            # Weighted random selection
+            levels = [1, 2, 3, 4]          # first 4 animals
+            weights = [50, 30, 15, 5]      # higher weight = smaller animal more likely
+            return random.choices(levels, weights=weights, k=1)[0]
         
     def spawn_animals(self, x):
-          # Define levels and their spawn weights
-            levels = [1, 2, 3, 4]             # The first 4 animal levels
-            weights = [50, 30, 15, 5]         # Higher weight = more likely to spawn
+           # Spawn the queued animal
+        level = self.next_animal_level
+        #surface = self.animal_surfaces[level]
 
-            # Pick a random level based on the weights
-            level = random.choices(levels, weights=weights, k=1)[0]
+        new_animal = Animal.Animal(x, 50, level, self.animal_images[level])  # Assuming Animal can take a Surface directly
+        half_width = new_animal.rect.width // 2
+        clamped_x = max(half_width, min(SCREEN_WIDTH - half_width, x))
+        new_animal.rect.centerx = clamped_x
+        self.animals.add(new_animal)
 
-            # Get the image path
-            image_path = self.animal_images[level]
+        # Queue next animal
+        self.next_animal_level = self.choose_next_level()
 
-            # Create the Animal
-            new_animal = Animal.Animal(x, 50, level, image_path)
+    def draw_next_animal_preview(self):
+        preview_x = GAME_X + SCREEN_WIDTH + 50   # right side of inner game
+        preview_y = GAME_Y + 300                  # below scoreboard
 
-            # Clamp the center so the sprite stays fully inside the inner screen
-            half_width = new_animal.rect.width // 2
-            clamped_x = max(half_width, min(SCREEN_WIDTH - half_width, x))
-            new_animal.rect.centerx = clamped_x
+        # Scale preview image smaller
+        surface = self.animal_surfaces[self.next_animal_level]
+        preview_size = 60
+        image = pygame.transform.scale(surface, (preview_size, preview_size))
 
-            self.animals.add(new_animal)
+        window.blit(image, (preview_x, preview_y))
+        
+        # Optional label
+        font = pygame.font.Font("Fonts/SedgwickAve-Regular.ttf", 30)
+        label_surf = font.render("NESTE", True, (77, 13, 15))
+        window.blit(label_surf, (preview_x, preview_y - 30))
 
     def handle_collisions(self):
         animals_list = self.animals.sprites()
@@ -229,6 +259,8 @@ class Game:
 
                 # tegne alt på vinduet
                 self.scoreboard.draw(window)
+                self.draw_next_animal_preview()  # <-- here
+                window.blit(screen, (GAME_X, GAME_Y))
                 window.blit(screen, (GAME_X, GAME_Y))
                 pygame.draw.rect(window, (77, 13, 15), (GAME_X - 5, GAME_Y - 5, SCREEN_WIDTH + 10, SCREEN_HEIGHT + 10), 10)
             else:
