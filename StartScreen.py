@@ -5,7 +5,6 @@ class StartScreen:
         self.screen = screen
         self.font_main = font_main
         self.font_sub = font_sub
-        
        # 1. Last inn det heldekkende bildet
         try:
             self.bg_image = pygame.image.load("Assets/startscreen.png").convert()
@@ -20,7 +19,6 @@ class StartScreen:
         # Fyll bakgrunnen (samme oransje som spillet)
         self.screen.fill((254, 172, 90))
 
-
        # 2. Tegn bildet eller fallback-farge
         if self.has_image:
             # Tegn det heldekkende bildet fra øverste venstre hjørne (0,0)
@@ -30,14 +28,12 @@ class StartScreen:
             self.screen.fill((254, 172, 110))
 
         # --- CREDITS TEKST ---
-
         text_color = (253, 187, 105)
         center_x = self.screen.get_width() // 2
 
         made_by_title = self.font_sub.render("Spill laget av:", True, text_color)
         self.screen.blit(made_by_title, made_by_title.get_rect(center=(center_x, 350)))
 
-     
         names = self.font_sub.render("Dorthea, Juni, Kristy, Sandra", True, text_color)
         self.screen.blit(names, names.get_rect(center=(center_x, 385)))
 
@@ -46,8 +42,6 @@ class StartScreen:
 
         artist_name = self.font_sub.render("Dorthea", True, text_color)
         self.screen.blit(artist_name, artist_name.get_rect(center=(center_x, 485)))
-
-        
 
         # Instruksjons-tekst
         inst_surface = self.font_main.render("Trykk for å starte", True, (90, 13, 16))
