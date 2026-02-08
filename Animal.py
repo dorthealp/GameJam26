@@ -2,10 +2,9 @@ import pygame
 
 
 class Animal(pygame.sprite.Sprite):
-    def __init__(self, x, y, level, image_path, mass):
+    def __init__(self, x, y, level, image_path):
         super().__init__()
         self.level = level
-        self.mass = mass
         # 1. Last inn bildet
         try:
             raw_image = pygame.image.load(image_path).convert_alpha()
@@ -32,11 +31,10 @@ class Animal(pygame.sprite.Sprite):
         self.gravity = 0.5
 
     def update(self):
-
         self.prev_top = self.rect.top
+        
         # Bruk tyngdekraft
-        self.velocity_y += self.gravity * self.mass
-        self.rect.y += self.velocity_y
+        self.velocity_y += self.gravity
         
         # Oppdater posisjon
         self.rect.x += self.velocity_x
@@ -45,13 +43,14 @@ class Animal(pygame.sprite.Sprite):
         # Veggkollisjon (Venstre/Høyre)
         if self.rect.left < 0:
             self.rect.left = 0
-            self.velocity_x *= (1 - 0.1 / self.mass) # Sprett litt tilbake
+            self.velocity_x *= -0.4 # Sprett litt tilbake
+
         elif self.rect.right > 550: # SCREEN_WIDTH
             self.rect.right = 550
-            self.velocity_x *= -0.5
+            self.velocity_x *= -0.4
 
         # Gulvkollisjon
         if self.rect.bottom > 600: # Sett gulvet litt opp fra bunnen
             self.rect.bottom = 600
             self.velocity_y = 0
-            self.velocity_x *= 0.9 # Friksjon mot gulvet
+            self.velocity_x *= 0.8 # Friksjon mot gulvet

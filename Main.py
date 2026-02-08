@@ -69,7 +69,7 @@ class Game:
     def spawn_animals(self, x):
         # Vi henter riktig bilde-sti basert på current_level
         image_path = self.animal_images[self.current_level]
-        new_animal= Animal.Animal(x, 50, self.current_level, image_path, 1 + self.current_level * 0.5 )
+        new_animal= Animal.Animal(x, 50, self.current_level, image_path )
         
          # Clamp the center so the sprite stays fully inside the inner screen
         half_width = new_animal.rect.width // 2
@@ -82,9 +82,6 @@ class Game:
 
         for i in range(len(animals_list)):
             for j in range(i + 1, len(animals_list)):
-                if i >= len(animals_list) or j >= len(animals_list):
-                    continue
-
                 f1 = animals_list[i]
                 f2 = animals_list[j]
 
@@ -100,41 +97,43 @@ class Game:
                         if new_level < len(self.animal_images):
                             new_x = (f1.rect.centerx + f2.rect.centerx) / 2
                             new_y = (f1.rect.centery + f2.rect.centery) / 2
-                            new_mass = f1.mass + f2.mass
                             f1.kill()
                             f2.kill()
                             new_path = self.animal_images[new_level]
-                            new_animal = Animal.Animal(new_x, new_y, new_level, new_path, mass=new_mass)
+                            new_animal = Animal.Animal(new_x, new_y, new_level, new_path)
                             self.animals.add(new_animal)
                             self.scoreboard.add_score_by_level(10) 
                             return
 
                     # --- STACKING / PUSHING ---
                     overlap = min_dist - distance
-                    if distance == 0:
-                        distance = 1
-                    nx = dx / distance
-                    ny = dy / distance
-                    total_mass = f1.mass + f2.mass
+                    if overlap > 0:
+                        if distance == 0:
+                            dx = 0.01
+                            distance = 0.01
 
-                    # Apply movement proportional to mass
-                    f1.rect.x += nx * (overlap * f2.mass / total_mass)
-                    f1.rect.y += ny * (overlap * f2.mass / total_mass)
-                    f2.rect.x -= nx * (overlap * f1.mass / total_mass)
-                    f2.rect.y -= ny * (overlap * f1.mass / total_mass)
+                        nx = dx / distance
+                        ny = dy / distance
 
-                    # --- CLAMP inside inner screen ---
-                    for f in [f1, f2]:
-                        # X posisjon
-                        if f.rect.left <= 0:
-                            f.rect.left = 0
-                        if f.rect.right >= SCREEN_WIDTH:
-                            f.rect.right = SCREEN_WIDTH
-                        # y posisjon
-                        if f.rect.top <= 0:
-                            f.rect.top = 0
-                        if f.rect.bottom >= SCREEN_HEIGHT:
-                            f.rect.bottom = SCREEN_HEIGHT
+                        # Move both animals along the normal so they just touch
+                        f1.rect.centerx += nx * (overlap / 2)
+                        f1.rect.centery += ny * (overlap / 2)
+                        f2.rect.centerx -= nx * (overlap / 2)
+                        f2.rect.centery -= ny * (overlap / 2)
+
+                        # Reset vertical velocity if stacking vertically
+                        if ny > 0.7:  # mostly vertical
+                            if f1.rect.centery < f2.rect.centery:
+                                f1.velocity_y = 0
+                            else:
+                                f2.velocity_y = 0
+                        # --- CLAMP inside inner screen ---
+                        for f in [f1, f2]:
+                            # X posisjon
+                            if f.rect.left < 0:
+                                f.rect.left = 0
+                            if f.rect.right > SCREEN_WIDTH:
+                                f.rect.right = SCREEN_WIDTH
 
     def reset_game(self):
         self.animals.empty()
