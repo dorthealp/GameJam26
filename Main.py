@@ -168,17 +168,16 @@ class Game:
                         ny = dy / distance
 
                         # Move both animals along the normal so they just touch
-                        f1.rect.centerx += nx * (overlap / 2)
-                        f1.rect.centery += ny * (overlap / 2)
-                        f2.rect.centerx -= nx * (overlap / 2)
-                        f2.rect.centery -= ny * (overlap / 2)
+                        push_factor = 0.3
+                        f1.rect.centerx += nx * overlap * push_factor
+                        f1.rect.centery += ny * overlap * push_factor
+                        f2.rect.centerx -= nx * overlap * push_factor
+                        f2.rect.centery -= ny * overlap * push_factor
 
                         # Reset vertical velocity if stacking vertically
                         if ny > 0.7:  # mostly vertical
-                            if f1.rect.centery < f2.rect.centery:
-                                f1.velocity_y = 0
-                            else:
-                                f2.velocity_y = 0
+                            f1.velocity_y *= 0.8  # lose some speed but still can move
+                            f2.velocity_y *= 0.8
                         # --- CLAMP inside inner screen ---
                         for f in [f1, f2]:
                             # X posisjon
