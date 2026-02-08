@@ -8,6 +8,7 @@ from AudioManager import AudioManager
 
 # Initialisering
 pygame.init()
+pygame.display.set_caption("Path to Prosperity")
 
 # INNER PLAYABLE area
 SCREEN_WIDTH = 550
@@ -19,6 +20,8 @@ FRAME_HEIGHT = 700
 
 screen = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
 window = pygame.display.set_mode((FRAME_WIDTH, FRAME_HEIGHT))
+icon = pygame.image.load("Assets/dragon.png").convert_alpha()
+pygame.display.set_icon(icon)
 clock = pygame.time.Clock()
 
 pixel_font = pygame.font.Font("Fonts/SedgwickAve-Regular.ttf", 40)
