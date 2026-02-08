@@ -87,6 +87,13 @@ class Game:
 
         # Initialize next animal queue
         self.next_animal_level = self.choose_next_level()
+        
+        # --- DROP BAR (player controlled) --- 
+        self.bar_x = SCREEN_WIDTH // 2 
+        self.bar_y = 40 
+        self.bar_speed = 7 
+        self.bar_width = 80 
+        self.bar_height = 6
 
 
     def choose_next_level(self):
@@ -96,11 +103,11 @@ class Game:
             return random.choices(levels, weights=weights, k=1)[0]
         
     def spawn_animals(self, x):
-           # Spawn the queued animal
+        # Spawn the queued animal
         level = self.next_animal_level
         #surface = self.animal_surfaces[level]
 
-        new_animal = Animal.Animal(x, 50, level, self.animal_images[level])  # Assuming Animal can take a Surface directly
+        new_animal = Animal.Animal(self.bar_x, 50, level, self.animal_images[level])
         half_width = new_animal.rect.width // 2
         clamped_x = max(half_width, min(SCREEN_WIDTH - half_width, x))
         new_animal.rect.centerx = clamped_x
@@ -251,7 +258,7 @@ class Game:
                         mx, my = pygame.mouse.get_pos() 
                         if GAME_X <= mx <= GAME_X + SCREEN_WIDTH: 
                             local_x = mx - GAME_X 
-                            self.spawn_animals(local_x) 
+                            self.spawn_animals(self.bar_x) 
                     # tilstand 3: game over -> INGENTING med mus 
                     else: # ikke restart her – kun space skal funke
                         pass
@@ -280,6 +287,24 @@ class Game:
                 pulse = abs((pygame.time.get_ticks() % 1000) - 500) // 4
                 color = (90, 58 + pulse // 10, 46 + pulse // 10)
                 pygame.draw.rect(screen, color, (0, TOP_BORDER_Y - 5, SCREEN_WIDTH, 5))
+                
+                # --- DRAW DROP BAR ---
+                pygame.draw.rect(
+                    screen,
+                    (212, 68, 62),
+                    (self.bar_x - self.bar_width//2, self.bar_y, self.bar_width, self.bar_height),
+                    border_radius = 6
+                )
+                
+                # --- BAR FOLLOWS MOUSE ---
+                mx, my = pygame.mouse.get_pos()
+
+                # konverter musens posisjon til lokal spillflate
+                local_x = mx - GAME_X
+
+                # clamp så baren ikke går utenfor
+                self.bar_x = max(self.bar_width//2, min(SCREEN_WIDTH - self.bar_width//2, local_x))
+
 
                 # Tegne alt på vinduet
                 self.scoreboard.draw(window)
