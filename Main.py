@@ -1,3 +1,4 @@
+import random
 import pygame
 import sys
 import Animal
@@ -25,6 +26,7 @@ pixel_font_thin = pygame.font.Font("Fonts/Pangolin-Regular.ttf", 30)
 
 GAME_X = (FRAME_WIDTH - SCREEN_WIDTH) // 2
 GAME_Y = (FRAME_HEIGHT - SCREEN_HEIGHT) // 2
+
 #Border
 TOP_BORDER_Y = 80
 
@@ -44,8 +46,9 @@ class Game:
         self.active_game = False
         self.on_start_screen = True # starter spillet på startscreen
 
+
         # Start screen
-        self.start_menu = StartScreen(screen, pixel_font, pixel_font_thin)
+        self.start_menu = StartScreen(window, pixel_font, pixel_font_thin)
 
         # opprette lydbehandleren & starter musikk med en gang
         self.audio = AudioManager()
@@ -53,15 +56,16 @@ class Game:
 
         #scoreboard
         self.scoreboard = Scoreboard(GAME_X + SCREEN_WIDTH + 50, GAME_Y + 100)
+        self.high_score = 0
 
         # En liste med filnavnene dine i rekkefølge (0 er minste frukt)
         self.animal_images = [
             "Assets/volleyb.png", # Level 0, denne vil bli ignorert pga listelogikk
             "Assets/rat.png",   # Level 1
-            "Assets/snake.png",  # Level 3
-            "Assets/cat.png",     # Level 4
-            "Assets/rooster.png",  # Level 5
-            "Assets/monkey.png",      # Level 6 osv..
+            "Assets/snake.png",  # Level 2
+            "Assets/cat.png",     # Level 3
+            "Assets/rooster.png",  # Level 4
+            "Assets/monkey.png",      # Level 5 osv..
             "Assets/dog.png",   
             "Assets/goat.png",  
             "Assets/pig.png",     
@@ -70,26 +74,62 @@ class Game:
             "Assets/buffalo.png",  
             "Assets/dragon.png",        
         ]
+        self.next_animal_level = self.choose_next_level()
+        self.next_animal_image = self.animal_images[self.next_animal_level]
+        self.animal_surfaces = []
+        for path in self.animal_images:
+            try:
+                img = pygame.image.load(path).convert_alpha()
+            except:
+                img = pygame.Surface((50, 50))
+                img.fill((255, 0, 255))
+            self.animal_surfaces.append(img)
+
+        # Initialize next animal queue
+        self.next_animal_level = self.choose_next_level()
+
+
+    def choose_next_level(self):
+            # Weighted random selection
+            levels = [1, 2, 3, 4]          # first 4 animals
+            weights = [50, 30, 15, 5]      # higher weight = smaller animal more likely
+            return random.choices(levels, weights=weights, k=1)[0]
         
     def spawn_animals(self, x):
-        # Vi henter riktig bilde-sti basert på current_level
-        image_path = self.animal_images[self.current_level]
-        new_animal= Animal.Animal(x, 50, self.current_level, image_path, 1 + self.current_level * 0.5 )
-        
-         # Clamp the center so the sprite stays fully inside the inner screen
+           # Spawn the queued animal
+        level = self.next_animal_level
+        #surface = self.animal_surfaces[level]
+
+        new_animal = Animal.Animal(x, 50, level, self.animal_images[level])  # Assuming Animal can take a Surface directly
         half_width = new_animal.rect.width // 2
         clamped_x = max(half_width, min(SCREEN_WIDTH - half_width, x))
         new_animal.rect.centerx = clamped_x
         self.animals.add(new_animal)
+
+        # Queue next animal
+        self.next_animal_level = self.choose_next_level()
+
+    def draw_next_animal_preview(self):
+        preview_x = GAME_X + SCREEN_WIDTH + 50   # right side of inner game
+        preview_y = GAME_Y + 300                  # below scoreboard
+
+        # Scale preview image smaller
+        surface = self.animal_surfaces[self.next_animal_level]
+        preview_size = 60
+        image = pygame.transform.scale(surface, (preview_size, preview_size))
+
+        window.blit(image, (preview_x, preview_y))
+        
+        # Optional label
+        font = pygame.font.Font("Fonts/SedgwickAve-Regular.ttf", 30)
+        label_surf = font.render("NESTE", True, (77, 13, 15))
+        window.blit(label_surf, (preview_x, preview_y - 30))
 
     def handle_collisions(self):
         animals_list = self.animals.sprites()
 
         for i in range(len(animals_list)):
             for j in range(i + 1, len(animals_list)):
-                if i >= len(animals_list) or j >= len(animals_list):
-                    continue
-
                 f1 = animals_list[i]
                 f2 = animals_list[j]
 
@@ -105,63 +145,68 @@ class Game:
                         if new_level < len(self.animal_images):
                             new_x = (f1.rect.centerx + f2.rect.centerx) / 2
                             new_y = (f1.rect.centery + f2.rect.centery) / 2
-                            new_mass = f1.mass + f2.mass
-                            f1.kill() # dyrene dør
+                            f1.kill()
                             f2.kill()
 
                             # lydeffekt for når dyrene merges
                             self.audio.play_merge_sound()
                             
                             new_path = self.animal_images[new_level]
-                            new_animal = Animal.Animal(new_x, new_y, new_level, new_path, mass=new_mass)
+                            new_animal = Animal.Animal(new_x, new_y, new_level, new_path)
                             self.animals.add(new_animal)
                             self.scoreboard.add_score_by_level(10) 
                             return
 
                     # --- STACKING / PUSHING ---
                     overlap = min_dist - distance
-                    if distance == 0:
-                        distance = 1
-                    nx = dx / distance
-                    ny = dy / distance
-                    total_mass = f1.mass + f2.mass
+                    if overlap > 0:
+                        if distance == 0:
+                            dx = 0.01
+                            distance = 0.01
 
-                    # Apply movement proportional to mass
-                    f1.rect.x += nx * (overlap * f2.mass / total_mass)
-                    f1.rect.y += ny * (overlap * f2.mass / total_mass)
-                    f2.rect.x -= nx * (overlap * f1.mass / total_mass)
-                    f2.rect.y -= ny * (overlap * f1.mass / total_mass)
+                        nx = dx / distance
+                        ny = dy / distance
 
-                    # --- CLAMP inside inner screen ---
-                    for f in [f1, f2]:
-                        # X posisjon
-                        if f.rect.left <= 0:
-                            f.rect.left = 0
-                        if f.rect.right >= SCREEN_WIDTH:
-                            f.rect.right = SCREEN_WIDTH
-                        # y posisjon
-                        if f.rect.top <= 0:
-                            f.rect.top = 0
-                        if f.rect.bottom >= SCREEN_HEIGHT:
-                            f.rect.bottom = SCREEN_HEIGHT
+                        # Move both animals along the normal so they just touch
+                        f1.rect.centerx += nx * (overlap / 2)
+                        f1.rect.centery += ny * (overlap / 2)
+                        f2.rect.centerx -= nx * (overlap / 2)
+                        f2.rect.centery -= ny * (overlap / 2)
+
+                        # Reset vertical velocity if stacking vertically
+                        if ny > 0.7:  # mostly vertical
+                            if f1.rect.centery < f2.rect.centery:
+                                f1.velocity_y = 0
+                            else:
+                                f2.velocity_y = 0
+                        # --- CLAMP inside inner screen ---
+                        for f in [f1, f2]:
+                            # X posisjon
+                            if f.rect.left < 0:
+                                f.rect.left = 0
+                            if f.rect.right > SCREEN_WIDTH:
+                                f.rect.right = SCREEN_WIDTH
 
     def reset_game(self):
         self.animals.empty()
         self.current_level = 1
-        self.active_game = True               
+        self.active_game = True
+        self.scoreboard.score = 0               
 
     def check_game_over(self):
         for animal in self.animals:
             if animal.rect.top > TOP_BORDER_Y:
                 animal.entered_game = True
 
-            if (
-                animal.entered_game 
-                and animal.prev_top > TOP_BORDER_Y
-                and animal.rect.top <= TOP_BORDER_Y
-                ):
+            if (animal.entered_game and animal.prev_top > TOP_BORDER_Y and animal.rect.top <= TOP_BORDER_Y):
+                self.update_high_score()
                 self.active_game = False
                 return
+    
+    def update_high_score(self):
+        if self.scoreboard.score > self.high_score:
+            self.high_score = self.scoreboard.score
+        return self.high_score
     
 
     def game_over_screen(self):
@@ -172,62 +217,75 @@ class Game:
         game_over_rectangle = game_over_surface.get_rect(center=(SCREEN_WIDTH // 2, 150))
         screen.blit(game_over_surface, game_over_rectangle)
         
-        game_over_description_surface = pixel_font_thin.render("Press to replay", False, (156, 27, 32))
+        game_over_description_surface = pixel_font_thin.render("Press 'spacebar' to replay", False, (156, 27, 32))
         game_over_description_rectangle = game_over_description_surface.get_rect(center=(SCREEN_WIDTH // 2, 300))
         screen.blit(game_over_description_surface, game_over_description_rectangle)
 
         game_over_score_surface = pixel_font_thin.render(f"Your score: {self.scoreboard.score}", False, (156, 27, 32))
-        game_over_score_rectangle = game_over_score_surface.get_rect(center=(SCREEN_WIDTH // 2, 300))
+        game_over_score_rectangle = game_over_score_surface.get_rect(center=(SCREEN_WIDTH // 2, 450))
         screen.blit(game_over_score_surface, game_over_score_rectangle)
+        
+        game_over_highscore_surface = pixel_font_thin.render(f"Your highscore: {self.high_score}", False, (156, 27, 32))
+        game_over_highscore_rectangle = game_over_highscore_surface.get_rect(center=(SCREEN_WIDTH // 2, 500))
+        screen.blit(game_over_highscore_surface, game_over_highscore_rectangle)
 
     def run(self):
         while True:
             for event in pygame.event.get(): # håndterer events (tastetrykk og mus)
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
-
-                # alt blir styrt med museklikk
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    # tilstand 1: start skjerm -> start spill
-                    if self.on_start_screen:
-                        self.on_start_screen = False
-                        self.active_game = True
-                    # tilstand 2: spill er i gang -> slipp dyr
-                    elif self.active_game:
-                        mx, my = pygame.mouse.get_pos()
-                        # Check if click is inside game screen
-                        if GAME_X <= mx <= GAME_X + SCREEN_WIDTH:
-                            local_x = mx - GAME_X
-                            self.spawn_animals(local_x)
-                    # tilstand 3: game over -> reset og start på nytt
-                    else:
-                        self.reset_game()
+                if event.type == pygame.QUIT: 
+                    pygame.quit() 
+                    sys.exit() 
+                
+                # SPACE på GAME OVER → restart 
+                if not self.active_game and not self.on_start_screen: 
+                    if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE: 
+                        self.reset_game() 
+                
+                # alt med mus 
+                if event.type == pygame.MOUSEBUTTONDOWN: 
+                    # tilstand 1: start skjerm -> start spill (med klikk) 
+                    if self.on_start_screen: 
+                        self.on_start_screen = False 
+                        self.active_game = True 
+                    # tilstand 2: spill er i gang -> slipp dyr 
+                    elif self.active_game: 
+                        mx, my = pygame.mouse.get_pos() 
+                        if GAME_X <= mx <= GAME_X + SCREEN_WIDTH: 
+                            local_x = mx - GAME_X 
+                            self.spawn_animals(local_x) 
+                    # tilstand 3: game over -> INGENTING med mus 
+                    else: # ikke restart her – kun space skal funke
+                        pass
             
             # TEGNING AV START SKJERM
             window.blit(self.background, (0, 0)) # ytterst bakgrunnsfarge
 
+            # --- TEGNING ---
             if self.on_start_screen:
-                # vis startskjerm
+                # 1. Tegn menyen direkte på det store vinduet
                 self.start_menu.draw() 
-                window.blit(screen, (GAME_X, GAME_Y))
-                pygame.draw.rect(window, (77, 13, 15), (GAME_X - 5, GAME_Y - 5, SCREEN_WIDTH + 10, SCREEN_HEIGHT + 10), 10)
+                # Vi dropper window.blit(screen...) og draw.rect her for å slippe boksen
+                
             elif self.active_game:
+                window.blit(self.background, (0, 0)) # Bakgrunn for selve spillet
+                
                 self.animals.update()
                 self.handle_collisions()
                 self.check_game_over()
-            
-                # tegning av indre spillflate
+
+                # Tegning av indre spillflate
                 screen.blit(self.inner_background, (0, 0))
                 self.animals.draw(screen)
 
-                # linje logikk
-                pulse = abs((pygame.time.get_ticks() % 100) - 500) // 4
+                # Linje logikk
+                pulse = abs((pygame.time.get_ticks() % 1000) - 500) // 4
                 color = (90, 58 + pulse // 10, 46 + pulse // 10)
                 pygame.draw.rect(screen, color, (0, TOP_BORDER_Y - 5, SCREEN_WIDTH, 5))
 
-                # tegne alt på vinduet
+                # Tegne alt på vinduet
                 self.scoreboard.draw(window)
+                self.draw_next_animal_preview()  # <-- here
+                window.blit(screen, (GAME_X, GAME_Y))
                 window.blit(screen, (GAME_X, GAME_Y))
                 pygame.draw.rect(window, (77, 13, 15), (GAME_X - 5, GAME_Y - 5, SCREEN_WIDTH + 10, SCREEN_HEIGHT + 10), 10)
             else:
