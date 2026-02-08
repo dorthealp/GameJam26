@@ -32,8 +32,11 @@ WHITE = (255, 255, 255)
 
 class Game:
     def __init__(self):
-        self.background = pygame.image.load("Assets/lysrosa.png").convert()
-        self.background = pygame.transform.scale(self.background, (SCREEN_WIDTH, SCREEN_HEIGHT))
+        self.background = pygame.image.load("Assets/background.png").convert()
+        self.background = pygame.transform.scale(self.background, (FRAME_WIDTH, FRAME_HEIGHT))
+        
+        self.inner_background = pygame.image.load("Assets/game_background.png").convert() 
+        self.inner_background = pygame.transform.scale(self.inner_background, (SCREEN_WIDTH, SCREEN_HEIGHT))
         
         self.animals = pygame.sprite.Group()
         self.current_level = 1 # Startfrukt
@@ -48,11 +51,12 @@ class Game:
 
         # En liste med filnavnene dine i rekkefølge (0 er minste frukt)
         self.animal_images = [
-            "Asserts/rat.png",   # Level 0, denne vil bli ignorert pga listelogikk
-            "Assets/snake.png",  # Level 1
-            "Assets/cat.png",     # Level 2
-            "Assets/rooster.png",  # Level 3
-            "Assets/monkey.png",      # Level 4 osv..
+            "Assets/volleyb.png", # Level 0, denne vil bli ignorert pga listelogikk
+            "Assets/rat.png",   # Level 1
+            "Assets/snake.png",  # Level 3
+            "Assets/cat.png",     # Level 4
+            "Assets/rooster.png",  # Level 5
+            "Assets/monkey.png",      # Level 6 osv..
             "Assets/dog.png",   
             "Assets/goat.png",  
             "Assets/pig.png",     
@@ -152,7 +156,8 @@ class Game:
     
 
     def game_over_screen(self):
-        screen.fill((254, 172, 90))
+        #screen.fill((254, 172, 90))
+        screen.blit(self.inner_background, (0, 0))
 
         game_over_surface = pixel_font.render("Game Over", False, (156, 27, 32))
         game_over_rectangle = game_over_surface.get_rect(center=(SCREEN_WIDTH // 2, 150))
@@ -191,7 +196,7 @@ class Game:
                         self.reset_game()
             
             # TEGNING AV START SKJERM
-            window.fill((194, 39, 45)) # ytterst bakgrunnsfarge
+            window.blit(self.background, (0, 0)) # ytterst bakgrunnsfarge
 
             if self.on_start_screen:
                 # vis startskjerm
@@ -204,7 +209,7 @@ class Game:
                 self.check_game_over()
             
                 # tegning av indre spillflate
-                screen.fill((254, 172, 90))
+                screen.blit(self.inner_background, (0, 0))
                 self.animals.draw(screen)
 
                 # linje logikk
@@ -224,52 +229,6 @@ class Game:
             
             pygame.display.update() 
             clock.tick(60)
-            
-            """ GAMEPLAY
-            if self.active_game:
-                # 1. Oppdater posisjoner
-                self.animals.update()
-                
-                # 2. Sjekk kollisjoner og merging
-                self.handle_collisions()
-
-                #3. check game over
-                self.check_game_over()
-
-                # 4. Tegn alt på nytt
-                screen.blit(self.background, (0, 0))
-                window.fill((194, 39, 45)) # ytre rød
-                screen.fill((254, 172, 90)) # indre gul/oransj
-                self.animals.draw(screen)
-                
-                #linje logikk
-                pulse = abs((pygame.time.get_ticks() % 1000) - 500) // 4
-                color = (90, 58 + pulse // 10, 46 + pulse // 10)
-
-                pygame.draw.rect(
-                    screen,
-                    color,
-                    (0, TOP_BORDER_Y - 5, SCREEN_WIDTH, 5))
-                window.fill((30, 30, 30))
-                self.scoreboard.draw(window)
-                
-                window.blit(screen, (GAME_X, GAME_Y))
-                pygame.draw.rect(window, (77, 13, 15), (GAME_X - 5, GAME_Y - 5, SCREEN_WIDTH + 10, SCREEN_HEIGHT + 10), 10)
-
-                pygame.display.update()
-                clock.tick(60)
-            
-            # GAME OVER SCREEN
-            else:
-                self.game_over_screen()
-                
-                window.fill((194, 39, 45)) 
-                window.blit(screen, (GAME_X, GAME_Y)) 
-                
-                pygame.draw.rect(window, (77, 13, 15), (GAME_X - 5, GAME_Y - 5, SCREEN_WIDTH + 10, SCREEN_HEIGHT + 10), 10)
-
-                pygame.display.update() 
-                clock.tick(60)"""
 
 if __name__ == "__main__":
     game = Game()
