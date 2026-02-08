@@ -59,7 +59,7 @@ class Game:
             "Assets/horse.png",  
             "Assets/tiger.png",
             "Assets/buffalo.png",  
-            "Assets/volleyb.png",        
+            "Assets/dragon.png",        
         ]
         
     def spawn_animals(self, x):
@@ -121,10 +121,16 @@ class Game:
 
                     # --- CLAMP inside inner screen ---
                     for f in [f1, f2]:
-                        if f.rect.left < 0:
+                        # X posisjon
+                        if f.rect.left <= 0:
                             f.rect.left = 0
-                        if f.rect.right > SCREEN_WIDTH:
+                        if f.rect.right >= SCREEN_WIDTH:
                             f.rect.right = SCREEN_WIDTH
+                        # y posisjon
+                        if f.rect.top <= 0:
+                            f.rect.top = 0
+                        if f.rect.bottom >= SCREEN_HEIGHT:
+                            f.rect.bottom = SCREEN_HEIGHT
 
     def reset_game(self):
         self.animals.empty()
@@ -155,6 +161,10 @@ class Game:
         game_over_description_surface = pixel_font_thin.render("Press to replay", False, (156, 27, 32))
         game_over_description_rectangle = game_over_description_surface.get_rect(center=(SCREEN_WIDTH // 2, 300))
         screen.blit(game_over_description_surface, game_over_description_rectangle)
+
+        game_over_score_surface = pixel_font_thin.render(f"Your score: {self.scoreboard.score}", False, (156, 27, 32))
+        game_over_score_rectangle = game_over_score_surface.get_rect(center=(SCREEN_WIDTH // 2, 300))
+        screen.blit(game_over_score_surface, game_over_score_rectangle)
 
     def run(self):
         while True:
