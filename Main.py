@@ -57,7 +57,7 @@ class Game:
         self.audio.play_music()
 
         #scoreboard
-        self.scoreboard = Scoreboard(GAME_X + SCREEN_WIDTH + 50, GAME_Y + 100)
+        self.scoreboard = Scoreboard(GAME_X + SCREEN_WIDTH + 50, GAME_Y + 40)
         self.high_score = 0
 
         # En liste med filnavnene dine i rekkefølge (0 er minste frukt)
@@ -120,7 +120,7 @@ class Game:
 
     def draw_next_animal_preview(self):
         preview_x = GAME_X + SCREEN_WIDTH + 50   # right side of inner game
-        preview_y = GAME_Y + 300                  # below scoreboard
+        preview_y = GAME_Y + 250                  # below scoreboard
 
         # Scale preview image smaller
         surface = self.animal_surfaces[self.next_animal_level]
