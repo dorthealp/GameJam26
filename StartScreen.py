@@ -20,10 +20,6 @@ class StartScreen:
         # Fyll bakgrunnen (samme oransje som spillet)
         self.screen.fill((254, 172, 90))
 
-        # Tittel-tekst
-        title_surface = self.font_main.render("MERGE SPILL", True, (90, 13, 16))
-        title_rect = title_surface.get_rect(center=(self.screen.get_width() // 2, 100))
-        self.screen.blit(title_surface, title_rect)
 
        # 2. Tegn bildet eller fallback-farge
         if self.has_image:
@@ -33,7 +29,27 @@ class StartScreen:
             # Fallback hvis bildet mangler (samme farge som før)
             self.screen.fill((254, 172, 110))
 
+        # --- CREDITS TEKST ---
+
+        text_color = (253, 187, 105)
+        center_x = self.screen.get_width() // 2
+
+        made_by_title = self.font_sub.render("Spill laget av:", True, text_color)
+        self.screen.blit(made_by_title, made_by_title.get_rect(center=(center_x, 350)))
+
+     
+        names = self.font_sub.render("Dorthea, Juni, Kristy, Sandra", True, text_color)
+        self.screen.blit(names, names.get_rect(center=(center_x, 385)))
+
+        art_by_title = self.font_sub.render("Tegninger av:", True, text_color)
+        self.screen.blit(art_by_title, art_by_title.get_rect(center=(center_x, 450)))
+
+        artist_name = self.font_sub.render("Dorthea", True, text_color)
+        self.screen.blit(artist_name, artist_name.get_rect(center=(center_x, 485)))
+
+        
+
         # Instruksjons-tekst
-        inst_surface = self.font_sub.render("Press to start", True, (90, 13, 16))
-        inst_rect = inst_surface.get_rect(center=(self.screen.get_width() // 2, 530))
+        inst_surface = self.font_main.render("Trykk for å starte", True, (90, 13, 16))
+        inst_rect = inst_surface.get_rect(center=(self.screen.get_width() // 2, 580))
         self.screen.blit(inst_surface, inst_rect)
