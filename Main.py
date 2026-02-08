@@ -44,7 +44,7 @@ class Game:
         self.on_start_screen = True # starter spillet på startscreen
 
         # Start screen
-        self.start_menu = StartScreen(screen, pixel_font, pixel_font_thin)
+        self.start_menu = StartScreen(window, pixel_font, pixel_font_thin)
 
         #scoreboard
         self.scoreboard = Scoreboard(GAME_X + SCREEN_WIDTH + 50, GAME_Y + 100)
@@ -197,26 +197,29 @@ class Game:
             # TEGNING AV START SKJERM
             window.blit(self.background, (0, 0)) # ytterst bakgrunnsfarge
 
+            # --- TEGNING ---
             if self.on_start_screen:
-                # vis startskjerm
+                # 1. Tegn menyen direkte på det store vinduet
                 self.start_menu.draw() 
-                window.blit(screen, (GAME_X, GAME_Y))
-                pygame.draw.rect(window, (77, 13, 15), (GAME_X - 5, GAME_Y - 5, SCREEN_WIDTH + 10, SCREEN_HEIGHT + 10), 10)
+                # Vi dropper window.blit(screen...) og draw.rect her for å slippe boksen
+                
             elif self.active_game:
+                window.blit(self.background, (0, 0)) # Bakgrunn for selve spillet
+                
                 self.animals.update()
                 self.handle_collisions()
                 self.check_game_over()
-            
-                # tegning av indre spillflate
+
+                # Tegning av indre spillflate
                 screen.blit(self.inner_background, (0, 0))
                 self.animals.draw(screen)
 
-                # linje logikk
-                pulse = abs((pygame.time.get_ticks() % 100) - 500) // 4
+                # Linje logikk
+                pulse = abs((pygame.time.get_ticks() % 1000) - 500) // 4
                 color = (90, 58 + pulse // 10, 46 + pulse // 10)
                 pygame.draw.rect(screen, color, (0, TOP_BORDER_Y - 5, SCREEN_WIDTH, 5))
 
-                # tegne alt på vinduet
+                # Tegne alt på vinduet
                 self.scoreboard.draw(window)
                 window.blit(screen, (GAME_X, GAME_Y))
                 pygame.draw.rect(window, (77, 13, 15), (GAME_X - 5, GAME_Y - 5, SCREEN_WIDTH + 10, SCREEN_HEIGHT + 10), 10)

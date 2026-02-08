@@ -6,15 +6,14 @@ class StartScreen:
         self.font_main = font_main
         self.font_sub = font_sub
         
-        # Her laster du inn tegningene dine etter hvert
+       # 1. Last inn det heldekkende bildet
         try:
-            self.envelope = pygame.image.load("Assets/lixi.png").convert_alpha()
-            # Vi skalerer den så den passer fint i midten (f.eks. 200 piksler bred)
-            # Du kan justere størrelsen her:
-            self.envelope = pygame.transform.scale(self.envelope, (200, 350))
+            self.bg_image = pygame.image.load("Assets\startscreen.png").convert()
+            # Skaler bildet slik at det fyller hele skjermens bredde og høyde
+            self.bg_image = pygame.transform.scale(self.bg_image, (screen.get_width(), screen.get_height()))
             self.has_image = True
         except:
-            # Hvis bildet ikke finnes ennå, bruker vi en rød firkant som plassholder
+            print("Kunne ikke laste bakgrunnsbilde for startskjerm.")
             self.has_image = False
 
     def draw(self):
@@ -26,17 +25,13 @@ class StartScreen:
         title_rect = title_surface.get_rect(center=(self.screen.get_width() // 2, 100))
         self.screen.blit(title_surface, title_rect)
 
-        # Plassholder for tegning (hvis du ikke har lastet inn bilde ennå)
+       # 2. Tegn bildet eller fallback-farge
         if self.has_image:
-            # Sentrer bildet i midten av skjermen
-            rect = self.envelope.get_rect(center=(self.screen.get_width() // 2, 320))
-            self.screen.blit(self.envelope, rect)
+            # Tegn det heldekkende bildet fra øverste venstre hjørne (0,0)
+            self.screen.blit(self.bg_image, (0, 0))
         else:
-            # Midlertidig rød konvolutt-firkant til du har bildet klart
-            temp_rect = pygame.Rect(0, 0, 180, 300)
-            temp_rect.center = (self.screen.get_width() // 2, 320)
-            pygame.draw.rect(self.screen, (156, 27, 32), temp_rect) # En rød rektangel
-            pygame.draw.rect(self.screen, (212, 175, 55), temp_rect, 3) # Gull-kant?
+            # Fallback hvis bildet mangler (samme farge som før)
+            self.screen.fill((254, 172, 110))
 
         # Instruksjons-tekst
         inst_surface = self.font_sub.render("Press to start", True, (90, 13, 16))
