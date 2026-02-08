@@ -147,8 +147,12 @@ class Game:
         game_over_rectangle = game_over_surface.get_rect(center=(SCREEN_WIDTH // 2, 150))
         screen.blit(game_over_surface, game_over_rectangle)
         
+        game_over_score_surface = pixel_font_thin.render(f"Your score: {self.scoreboard.score}", False, (156, 27, 32))
+        game_over_score_rectangle = game_over_score_surface.get_rect(center=(SCREEN_WIDTH // 2, 300))
+        screen.blit(game_over_score_surface, game_over_score_rectangle)
+        
         game_over_description_surface = pixel_font_thin.render("Press 'spacebar' to replay", False, (156, 27, 32))
-        game_over_description_rectangle = game_over_description_surface.get_rect(center=(SCREEN_WIDTH // 2, 300))
+        game_over_description_rectangle = game_over_description_surface.get_rect(center=(SCREEN_WIDTH // 2, 500))
         screen.blit(game_over_description_surface, game_over_description_rectangle)
 
     def run(self):
