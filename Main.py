@@ -109,7 +109,7 @@ class Game:
         level = self.next_animal_level
         #surface = self.animal_surfaces[level]
 
-        new_animal = Animal.Animal(self.bar_x, 50, level, self.animal_images[level])
+        new_animal = Animal.Animal(self.bar_x, 100, level, self.animal_images[level])
         half_width = new_animal.rect.width // 2
         clamped_x = max(half_width, min(SCREEN_WIDTH - half_width, x))
         new_animal.rect.centerx = clamped_x
@@ -203,13 +203,20 @@ class Game:
 
     def check_game_over(self):
         for animal in self.animals:
-            if animal.rect.top > TOP_BORDER_Y:
-                animal.entered_game = True
 
-            if (animal.entered_game and animal.prev_top > TOP_BORDER_Y and animal.rect.top <= TOP_BORDER_Y):
+            # 1. Ballen må først falle UNDER baren for å være "i spill"
+            if not animal.entered_game:
+                if animal.rect.top > self.bar_y:
+                    animal.entered_game = True
+                continue
+
+            # 2. Hvis ballen HAR vært under baren og nå går OPP igjen → game over
+            if animal.rect.top <= self.bar_y:
                 self.update_high_score()
                 self.active_game = False
                 return
+
+
     
     def update_high_score(self):
         if self.scoreboard.score > self.high_score:
