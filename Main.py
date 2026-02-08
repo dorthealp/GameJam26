@@ -23,6 +23,8 @@ clock = pygame.time.Clock()
 
 pixel_font = pygame.font.Font("Fonts/SedgwickAve-Regular.ttf", 40)
 pixel_font_thin = pygame.font.Font("Fonts/Pangolin-Regular.ttf", 30)
+pixel_font_credits = pygame.font.Font("Fonts/Pangolin-Regular.ttf", 25)
+pixel_font_over = pygame.font.Font("Fonts/SedgwickAve-Regular.ttf", 50)
 
 GAME_X = (FRAME_WIDTH - SCREEN_WIDTH) // 2
 GAME_Y = (FRAME_HEIGHT - SCREEN_HEIGHT) // 2
@@ -48,7 +50,7 @@ class Game:
 
 
         # Start screen
-        self.start_menu = StartScreen(window, pixel_font, pixel_font_thin)
+        self.start_menu = StartScreen(window, pixel_font, pixel_font_credits)
 
         # opprette lydbehandleren & starter musikk med en gang
         self.audio = AudioManager()
@@ -212,19 +214,23 @@ class Game:
         #screen.fill((254, 172, 90))
         screen.blit(self.inner_background, (0, 0))
 
-        game_over_surface = pixel_font.render("Game Over", False, (156, 27, 32))
+        game_over_surface = pixel_font_over.render("Game Over", False, (156, 27, 32))
         game_over_rectangle = game_over_surface.get_rect(center=(SCREEN_WIDTH // 2, 150))
         screen.blit(game_over_surface, game_over_rectangle)
         
-        game_over_description_surface = pixel_font_thin.render("Press 'spacebar' to replay", False, (156, 27, 32))
+        game_over_description_surface = pixel_font_thin.render("Trykk på mellomromstasten", False, (156, 27, 32))
         game_over_description_rectangle = game_over_description_surface.get_rect(center=(SCREEN_WIDTH // 2, 300))
         screen.blit(game_over_description_surface, game_over_description_rectangle)
 
-        game_over_score_surface = pixel_font_thin.render(f"Your score: {self.scoreboard.score}", False, (156, 27, 32))
+        game_over_description2_surface = pixel_font_thin.render("for å prøve igjen", False, (156, 27, 32))
+        game_over_description2_rectangle = game_over_description2_surface.get_rect(center=(SCREEN_WIDTH // 2, 350))
+        screen.blit(game_over_description2_surface, game_over_description2_rectangle)
+
+        game_over_score_surface = pixel_font_thin.render(f"Dine poeng: {self.scoreboard.score}", False, (156, 27, 32))
         game_over_score_rectangle = game_over_score_surface.get_rect(center=(SCREEN_WIDTH // 2, 450))
         screen.blit(game_over_score_surface, game_over_score_rectangle)
         
-        game_over_highscore_surface = pixel_font_thin.render(f"Your highscore: {self.high_score}", False, (156, 27, 32))
+        game_over_highscore_surface = pixel_font_thin.render(f"Din rekord: {self.high_score}", False, (156, 27, 32))
         game_over_highscore_rectangle = game_over_highscore_surface.get_rect(center=(SCREEN_WIDTH // 2, 500))
         screen.blit(game_over_highscore_surface, game_over_highscore_rectangle)
 

@@ -16,7 +16,7 @@ class AudioManager:
 
         # lydeffekt
         try:
-            self.merge_sound = pygame.mixer.Sound("Assets/Sounds/p2.mp3")
+            self.merge_sound = pygame.mixer.Sound("Assets/Sounds/pop2.mp3")
             self.merge_sound.set_volume(0.3) # eget volum
         except pygame.error as e:
             print("Kunne ikke laste lydeffekt: {e}")
