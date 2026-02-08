@@ -8,7 +8,7 @@ class StartScreen:
         
        # 1. Last inn det heldekkende bildet
         try:
-            self.bg_image = pygame.image.load("Assets\startscreen.png").convert()
+            self.bg_image = pygame.image.load("Assets/startscreen.png").convert()
             # Skaler bildet slik at det fyller hele skjermens bredde og høyde
             self.bg_image = pygame.transform.scale(self.bg_image, (screen.get_width(), screen.get_height()))
             self.has_image = True
