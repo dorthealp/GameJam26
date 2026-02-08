@@ -15,4 +15,10 @@ python Main.py
 
 # Info
 Alle tegninger i spillet er originale og laget for hånd av medlemmene på gruppa. Dyrene kommer fra vietnamesiske stjernetegn og spillet tar inspirasjon fra vietnamesisk nyttår. Temaet "Growth" er inkorperert gjennom de voksende kulene i spillet. Du starter med det minste dyret, rotte, og kan jobbe deg helt opp til en drage, som er den største. 
+
+# Credits
+Musikk hentet fra [flowerhead](https://flowerheadmusic.itch.io/somewhat-good-underwater) på itch.io
+Lydeffekter hentet fra [soundbuttonsworld](https://soundbuttonsworld.com/search/pop)
+
+# Chain of evolution
 <img width="4532" height="1895" alt="showcaseGameJam" src="https://github.com/user-attachments/assets/9e5bf866-2277-4c3d-be1c-37fc49534d1b" />
