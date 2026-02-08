@@ -4,6 +4,7 @@ import sys
 import Animal
 from Scoreboard import Scoreboard
 from StartScreen import StartScreen
+from AudioManager import AudioManager
 
 # Initialisering
 pygame.init()
@@ -48,6 +49,10 @@ class Game:
 
         # Start screen
         self.start_menu = StartScreen(window, pixel_font, pixel_font_thin)
+
+        # opprette lydbehandleren & starter musikk med en gang
+        self.audio = AudioManager()
+        self.audio.play_music()
 
         #scoreboard
         self.scoreboard = Scoreboard(GAME_X + SCREEN_WIDTH + 50, GAME_Y + 100)
@@ -142,6 +147,10 @@ class Game:
                             new_y = (f1.rect.centery + f2.rect.centery) / 2
                             f1.kill()
                             f2.kill()
+
+                            # lydeffekt for når dyrene merges
+                            self.audio.play_merge_sound()
+                            
                             new_path = self.animal_images[new_level]
                             new_animal = Animal.Animal(new_x, new_y, new_level, new_path)
                             self.animals.add(new_animal)
