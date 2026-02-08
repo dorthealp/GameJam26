@@ -8,10 +8,10 @@
 python main.py
 
 # Gruppemedlemmer:
-Dorthea Løvoll-Paulsen
-Kristy Pik Yi Wang
-Juni Knain
-Sandra La 
+<br>Dorthea Løvoll-Paulsen<br>
+<br>Kristy Pik Yi Wang<br>
+<br>Juni Knain<br>
+<br>Sandra La <br>
 
 # Kontrollere
 Venstreklikk med musepekeren for å starte spillet
