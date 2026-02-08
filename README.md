@@ -1,3 +1,4 @@
+<img width="4532" height="1895" alt="showcaseGameJam" src="https://github.com/user-attachments/assets/9e5bf866-2277-4c3d-be1c-37fc49534d1b" />
 
 # Kommando for kjøring:
 python Main.py
