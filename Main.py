@@ -24,6 +24,7 @@ pixel_font_thin = pygame.font.Font("Fonts/Pangolin-Regular.ttf", 30)
 
 GAME_X = (FRAME_WIDTH - SCREEN_WIDTH) // 2
 GAME_Y = (FRAME_HEIGHT - SCREEN_HEIGHT) // 2
+
 #Border
 TOP_BORDER_Y = 80
 
@@ -48,6 +49,7 @@ class Game:
 
         #scoreboard
         self.scoreboard = Scoreboard(GAME_X + SCREEN_WIDTH + 50, GAME_Y + 100)
+        self.high_score = 0
 
         # En liste med filnavnene dine i rekkefølge (0 er minste frukt)
         self.animal_images = [
@@ -138,20 +140,23 @@ class Game:
     def reset_game(self):
         self.animals.empty()
         self.current_level = 1
-        self.active_game = True               
+        self.active_game = True
+        self.scoreboard.score = 0               
 
     def check_game_over(self):
         for animal in self.animals:
             if animal.rect.top > TOP_BORDER_Y:
                 animal.entered_game = True
 
-            if (
-                animal.entered_game 
-                and animal.prev_top > TOP_BORDER_Y
-                and animal.rect.top <= TOP_BORDER_Y
-                ):
+            if (animal.entered_game and animal.prev_top > TOP_BORDER_Y and animal.rect.top <= TOP_BORDER_Y):
+                self.update_high_score()
                 self.active_game = False
                 return
+    
+    def update_high_score(self):
+        if self.scoreboard.score > self.high_score:
+            self.high_score = self.scoreboard.score
+        return self.high_score
     
 
     def game_over_screen(self):
@@ -162,37 +167,45 @@ class Game:
         game_over_rectangle = game_over_surface.get_rect(center=(SCREEN_WIDTH // 2, 150))
         screen.blit(game_over_surface, game_over_rectangle)
         
-        game_over_description_surface = pixel_font_thin.render("Press to replay", False, (156, 27, 32))
+        game_over_description_surface = pixel_font_thin.render("Press 'spacebar' to replay", False, (156, 27, 32))
         game_over_description_rectangle = game_over_description_surface.get_rect(center=(SCREEN_WIDTH // 2, 300))
         screen.blit(game_over_description_surface, game_over_description_rectangle)
 
         game_over_score_surface = pixel_font_thin.render(f"Your score: {self.scoreboard.score}", False, (156, 27, 32))
-        game_over_score_rectangle = game_over_score_surface.get_rect(center=(SCREEN_WIDTH // 2, 300))
+        game_over_score_rectangle = game_over_score_surface.get_rect(center=(SCREEN_WIDTH // 2, 450))
         screen.blit(game_over_score_surface, game_over_score_rectangle)
+        
+        game_over_highscore_surface = pixel_font_thin.render(f"Your highscore: {self.high_score}", False, (156, 27, 32))
+        game_over_highscore_rectangle = game_over_highscore_surface.get_rect(center=(SCREEN_WIDTH // 2, 500))
+        screen.blit(game_over_highscore_surface, game_over_highscore_rectangle)
 
     def run(self):
         while True:
             for event in pygame.event.get(): # håndterer events (tastetrykk og mus)
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
-
-                # alt blir styrt med museklikk
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    # tilstand 1: start skjerm -> start spill
-                    if self.on_start_screen:
-                        self.on_start_screen = False
-                        self.active_game = True
-                    # tilstand 2: spill er i gang -> slipp dyr
-                    elif self.active_game:
-                        mx, my = pygame.mouse.get_pos()
-                        # Check if click is inside game screen
-                        if GAME_X <= mx <= GAME_X + SCREEN_WIDTH:
-                            local_x = mx - GAME_X
-                            self.spawn_animals(local_x)
-                    # tilstand 3: game over -> reset og start på nytt
-                    else:
-                        self.reset_game()
+                if event.type == pygame.QUIT: 
+                    pygame.quit() 
+                    sys.exit() 
+                
+                # SPACE på GAME OVER → restart 
+                if not self.active_game and not self.on_start_screen: 
+                    if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE: 
+                        self.reset_game() 
+                
+                # alt med mus 
+                if event.type == pygame.MOUSEBUTTONDOWN: 
+                    # tilstand 1: start skjerm -> start spill (med klikk) 
+                    if self.on_start_screen: 
+                        self.on_start_screen = False 
+                        self.active_game = True 
+                    # tilstand 2: spill er i gang -> slipp dyr 
+                    elif self.active_game: 
+                        mx, my = pygame.mouse.get_pos() 
+                        if GAME_X <= mx <= GAME_X + SCREEN_WIDTH: 
+                            local_x = mx - GAME_X 
+                            self.spawn_animals(local_x) 
+                    # tilstand 3: game over -> INGENTING med mus 
+                    else: # ikke restart her – kun space skal funke
+                        pass
             
             # TEGNING AV START SKJERM
             window.blit(self.background, (0, 0)) # ytterst bakgrunnsfarge
