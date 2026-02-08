@@ -1,3 +1,4 @@
+import random
 import pygame
 import sys
 import Animal
@@ -67,15 +68,25 @@ class Game:
         ]
         
     def spawn_animals(self, x):
-        # Vi henter riktig bilde-sti basert på current_level
-        image_path = self.animal_images[self.current_level]
-        new_animal= Animal.Animal(x, 50, self.current_level, image_path )
-        
-         # Clamp the center so the sprite stays fully inside the inner screen
-        half_width = new_animal.rect.width // 2
-        clamped_x = max(half_width, min(SCREEN_WIDTH - half_width, x))
-        new_animal.rect.centerx = clamped_x
-        self.animals.add(new_animal)
+          # Define levels and their spawn weights
+            levels = [1, 2, 3, 4]             # The first 4 animal levels
+            weights = [50, 30, 15, 5]         # Higher weight = more likely to spawn
+
+            # Pick a random level based on the weights
+            level = random.choices(levels, weights=weights, k=1)[0]
+
+            # Get the image path
+            image_path = self.animal_images[level]
+
+            # Create the Animal
+            new_animal = Animal.Animal(x, 50, level, image_path)
+
+            # Clamp the center so the sprite stays fully inside the inner screen
+            half_width = new_animal.rect.width // 2
+            clamped_x = max(half_width, min(SCREEN_WIDTH - half_width, x))
+            new_animal.rect.centerx = clamped_x
+
+            self.animals.add(new_animal)
 
     def handle_collisions(self):
         animals_list = self.animals.sprites()
