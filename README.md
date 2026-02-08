@@ -1,6 +1,6 @@
 
 # Kommando for kjøring:
-python main.py
+python Main.py
 
 # Gruppemedlemmer:
 <br>Dorthea Løvoll-Paulsen<br>
